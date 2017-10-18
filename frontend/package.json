@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A good starting point for new Circus students",
   "main": "gulpfile.js",
-  "dependencies": {},
+  "dependencies": {
+    "body-parser": "^1.18.2"
+  },
   "devDependencies": {
     "browser-sync": "^2.18.6",
     "gulp": "^3.9.1",

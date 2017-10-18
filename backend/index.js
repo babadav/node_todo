@@ -1,59 +1,78 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
 
-let items = [
-	{
-		task:      	"Feed dog",
-		completed: 	false,
-		id: 		"0"
+app.use(bodyParser.urlencoded({extended: true}))
 
 
-	},
-	{
-		task: 	   	"Make bed",
-		completed: 	false,
-		id: 		"1"
-		
-	},
-	{
-		task: 	   	"Walk dog",
-		completed: 	false,
-		id: 		"2"
-		
-	},
-]
+var idIncrementer = 0;
 
+ class Item {
+ 	constructor(task){
+		this.task = task;
+		this.completed = false;
+		this.id = idIncrementer++;
+		this.deleted = false;
+	}
+}
+
+let items = [];
+items.push( new Item('Walk dog'));
+items.push( new Item('Feed dog'));
+items.push( new Item('Make Bed'));
+
+// items[0].deleted = true;
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   next();
 });
 
 
 app.get('/item', function(req, res){
-	res.json(items)
+	let notDeletedItems = items.filter(function(item){
+		return (!item.deleted) 
+	})
+	res.json(notDeletedItems)
+
 })
 
-app.get('/', function(req, res) {
-	res.send('Hello World!')
-})
+app.post('/item', function(req,res){
 
-app.get('/shelly', function(req, res) {
-	res.send('Shelly is cool.')
-})
+	let newItem = new Item(req.body.task) ;
+	items.push(newItem);
 
+	console.log("added new item, id: " + newItem.id);
+	res.send( newItem );
+})
 
 app.get('/item/:itemId', function(req, res) {
 	let itemId = req.params.itemId;
 
-	let item = items.filter(function(item){
+	let item = items.find(function(item){
 		return (req.params.itemId == item.id )
 	})
 	res.json(item)
 	
 })
 
+app.delete('/item/:itemId', function(req, res) {
+	
+
+	let doomedItem = items.find(function(item){
+		return (req.params.itemId == item.id )
+	})
+
+	if(doomedItem){
+		doomedItem.deleted = true;
+	}
+
+
+	res.json(doomedItem)
+	
+})
 
 
 app.listen(5559, function () {
